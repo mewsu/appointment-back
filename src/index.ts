@@ -47,8 +47,8 @@ const resolvers: IResolvers = {
     hello: () => 'Hello world!',
     getAllAppointments: async () => {
       const { rows } = await pool.query('SELECT * FROM appointments');
-      return rows.map((row: { appointment_id: any; patient_name: any; patient_email: any; appointment_date: any; purpose: any; }) => ({
-        id: row.appointment_id, // Adjust according to your column names
+      return rows.map((row: { id: any; patient_name: any; patient_email: any; appointment_date: any; purpose: any; }) => ({
+        id: row.id, // Adjust according to your column names
         patientName: row.patient_name,
         patientEmail: row.patient_email,
         appointmentDate: row.appointment_date,
@@ -61,7 +61,7 @@ const resolvers: IResolvers = {
       const insertQuery = `
         INSERT INTO appointments (patient_name, patient_email, appointment_date, purpose) 
         VALUES ($1, $2, $3, $4) 
-        RETURNING appointment_id AS id, patient_name AS "patientName", patient_email AS "patientEmail", appointment_date AS "appointmentDate", purpose;
+        RETURNING id AS id, patient_name AS "patientName", patient_email AS "patientEmail", appointment_date AS "appointmentDate", purpose;
       `;
       try {
         const result = await pool.query(insertQuery, [patientName, patientEmail, appointmentDate, purpose]);
