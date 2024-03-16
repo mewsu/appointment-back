@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 const { Pool } = require('pg');
 import { IResolvers } from '@graphql-tools/utils'; 
-
+require('dotenv').config();
 // Define your schema
 const typeDefs = gql`
   type Appointment {
@@ -25,11 +25,11 @@ const typeDefs = gql`
 
 // Initialize PostgreSQL pool connection
 const pool = new Pool({
-  user: 'postgres',
-  host: 'db',
-  database: 'my_appointments_db',
-  password: 'postgres',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 
@@ -81,13 +81,16 @@ const server: ApolloServer = new ApolloServer({
   resolvers,
 });
 
+const HOST = process.env.APP_HOST || '0.0.0.0'; // Default to '0.0.0.0' if not specified
+const PORT = parseInt(process.env.APP_PORT || '4000') || 4000;
+
 // 'server.start' initializes the Apollo server
 server.start().then(() => {
   // 'applyMiddleware' connects ApolloServer to a specific HTTP framework, express in this case
   server.applyMiddleware({ app: app as any });
 
   // Start the Express server
-  app.listen({ port: 4000 }, () =>
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath} cool`)
-  );
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}/graphql`);
+  });
 });
